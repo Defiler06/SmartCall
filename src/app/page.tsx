@@ -1,95 +1,124 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { fetchData } from '@/services';
+import IManager from '@/app/interfaces/IManager';
+import { Button, message, Row, Space, Typography } from 'antd';
 import styles from "./page.module.css";
+import { PlusOutlined } from '@ant-design/icons';
+import CardManager from '@/components/CardManager';
+import ManagerModal from '../components/ManagerModal';
 
+const { Text } = Typography;
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+	const [managers, setManagers] = useState<IManager[]>([]);
+	const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [currentManager, setCurrentManager] = useState<IManager | null>(null);
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+	const getManagers = async () => {
+		try {
+			setIsLoading(false);
+			const response = await fetchData('manager');
+			setManagers(response);
+		} catch (e) {
+			setManagers([]);
+			message.error(e.message);
+		} finally {
+			setIsLoading(true);
+		}
+	};
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+	const deleteManager = async (id) => {
+		try {
+			await fetchData(`manager/${id}`, { method: 'DELETE' });
+			message.success("You have successfully removed the manager");
+		} catch (e) {
+			setManagers([]);
+			message.error(e.message);
+		} finally {
+			await getManagers();
+		}
+	};
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+	const createManager = async (data: { name: string }) => {
+		try {
+			await fetchData('manager', { method: "POST", data: data })
+			message.success("You have successfully created a manager");
+		} catch (error) {
+			message.success(error.message);
+		} finally {
+			await getManagers();
+			setIsOpenModal(false);
+		}
+	};
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+	const updateManager = async (id: string, data: { name: string }) => {
+		try {
+			await fetchData(`manager/${id}`, { method: "PUT", data: data })
+			message.success("You have successfully changed manager data");
+		} catch (error) {
+			message.success(error.message);
+		} finally {
+			await getManagers();
+			setIsOpenModal(false);
+		}
+	};
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+	const renderManagersCards = managers.map((manager) => (
+		<CardManager
+			key={manager.id}
+			name={manager.name}
+			deleteManager={() => deleteManager(manager.id)}
+			onEdit={() => {
+				setIsOpenModal(true);
+				setCurrentManager(manager);
+			}}
+		/>
+	));
+
+	useEffect(() => {
+		getManagers();
+	}, [])
+
+	return (
+		<main className={styles.container}>
+			{isLoading && <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+				<Row justify="space-between">
+					<Button
+						type="primary"
+						className={styles.button}
+						icon={<PlusOutlined/>}
+						size="large"
+						onClick={() => {
+							setCurrentManager(null);
+							setIsOpenModal(true);
+						}}
+					>
+						Create manager
+					</Button>
+					<Button
+						type="primary"
+						className={styles.button}
+						size="large"
+						href="/client"
+					>
+						Clients page
+					</Button>
+				</Row>
+				{managers.length > 0 ? (
+					renderManagersCards
+				) : (
+					<Text type="warning">Менеджеры не найдены</Text>
+				)}
+			</Space>}
+			<ManagerModal
+				isModalOpen={isOpenModal}
+				handleCancel={() => setIsOpenModal(false)}
+				createManager={createManager}
+				currentManager={currentManager}
+				updateManager={updateManager}
+			/>
+		</main>
+	);
 }

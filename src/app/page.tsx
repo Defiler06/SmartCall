@@ -87,7 +87,6 @@ export default function Home() {
 				<Row justify="space-between">
 					<Button
 						type="primary"
-						className={styles.button}
 						icon={<PlusOutlined/>}
 						size="large"
 						onClick={() => {
@@ -99,7 +98,6 @@ export default function Home() {
 					</Button>
 					<Button
 						type="primary"
-						className={styles.button}
 						size="large"
 						href="/client"
 					>

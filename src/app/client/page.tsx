@@ -1,5 +1,5 @@
 "use client";
-import { Button, message, Row, Space, Table, TableProps } from 'antd';
+import { Button, message, Row, Select, Space, Table, TableProps } from 'antd';
 import styles from '@/app/page.module.css';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { fetchData } from '@/services';
@@ -23,7 +23,8 @@ export default function Page() {
 	const [clients, setClients] = useState<IClient[]>([]);
 	const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [currentClient, setCurrentClient] = useState<IClient | null>(null)
+	const [currentClient, setCurrentClient] = useState<IClient | null>(null);
+
 	const getClients = async () => {
 		try {
 			setIsLoading(false);
@@ -102,6 +103,14 @@ export default function Page() {
 			title: 'Status',
 			dataIndex: 'status',
 			key: 'status',
+			filters: [
+				{ text: 'active', value: 'active' },
+				{ text: 'pending', value: 'pending' },
+				{ text: 'archive', value: 'archive' },
+			],
+			filterMultiple: false,
+			onFilter: (value, record) => record.status === value,
+			render: (status) => <span>{status}</span>,
 		},
 		{
 			title: 'Action',
@@ -135,7 +144,6 @@ export default function Page() {
           <Row justify="space-between">
               <Button
                   type="primary"
-                  className={styles.button}
                   icon={<PlusOutlined/>}
                   size="large"
                   onClick={() => {
@@ -147,7 +155,6 @@ export default function Page() {
               </Button>
               <Button
                   type="primary"
-                  className={styles.button}
                   size="large"
                   href="/"
               >

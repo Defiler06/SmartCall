@@ -10,7 +10,7 @@ export default function FieldRender({ field }) {
 					<Form.Item
 						label={field.label}
 						name={field.name}
-						rules={[{ required: true, message: `Enter ${field.label}`}]}
+						rules={[{ required: true, message: `Enter ${field.label}` }]}
 					>
 						<Input size="large" placeholder={`Enter ${field.label}`}/>
 					</Form.Item>
@@ -20,11 +20,11 @@ export default function FieldRender({ field }) {
 					<Form.Item
 						label={field.label}
 						name={field.name}
-						rules={[{ required: true, message: `Enter ${field.label}`}]}
+						rules={[{ required: true, message: `Enter ${field.label}` }]}
 					>
 						<DatePicker
 							size="large"
-							style={{width: '100%'}}
+							style={{ width: '100%' }}
 							placeholder={`Select ${field.label}`}
 						/>
 					</Form.Item>
@@ -34,16 +34,20 @@ export default function FieldRender({ field }) {
 					<Form.Item
 						label={field.label}
 						name={field.name}
-						rules={[{ required: true, message: `Enter ${field.label}`}]}
+						rules={[{ required: true, message: `Enter ${field.label}` }]}
 					>
-						<InputMask mask="99999999999" placeholder={`Enter ${field.label}`}>
+						<InputMask mask="+7 (999)999-99-99" placeholder={`Enter ${field.label}`}>
 							{(inputProps) => <Input {...inputProps} size="large"/>}
 						</InputMask>
 					</Form.Item>
 				)
 			case 'DICTI':
 				return (
-					<Form.Item label={field.label} name={field.name}>
+					<Form.Item
+						label={field.label}
+						name={field.name}
+						rules={[{ required: true, message: `Enter ${field.label}` }]}
+					>
 						<Select size="large" placeholder={`Select ${field.label}`}>
 							{field?.dicti?.map((value) => {
 								return <Option

@@ -39,7 +39,7 @@ export const dataFields = [
 				label: 'Active'
 			},
 			{
-				value: 'acrhive',
+				value: 'archive',
 				label: 'Archive'
 			},
 			{
